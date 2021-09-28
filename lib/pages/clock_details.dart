@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:whisper_arts_tests/dataclass/clockData.dart';
+import 'package:whisper_arts_tests/dataclass/clock_data.dart';
 
 class ClockDetails extends StatelessWidget {
-  final ClockData clockData;
+  final Word clockData;
   const ClockDetails({Key? key, required this.clockData}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.teal[900],
+        centerTitle: true,
         title: Text(
-          'ROLEX',
+          clockData.name,
           style: TextStyle(color: Colors.grey[300]),
         ),
-        backgroundColor: Colors.grey[700],
-        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -22,7 +23,9 @@ class ClockDetails extends StatelessWidget {
               height: 40,
             ),
             Text(
-              clockData.nameClock,
+              // "jfhjd",
+              clockData.name,
+              // clockData.nameClock,
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontFamily: 'BebasNeue',
@@ -34,31 +37,34 @@ class ClockDetails extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-            Image.network(clockData.imageUrl),
+            Image.network(clockData.url),
+            SizedBox(
+              height: 20,
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              child: Text(
+                clockData.description,
+                textAlign: TextAlign.justify,
+                style: TextStyle(
+                    fontFamily: 'EBGaramond',
+                    fontWeight: FontWeight.w400,
+                    fontSize: 25,
+                    color: Colors.grey[700],
+                    decoration: TextDecoration.none),
+              ),
+            ),
             SizedBox(
               height: 20,
             ),
             Text(
-              clockData.descriptionClock,
-              textAlign: TextAlign.justify,
-              style: TextStyle(
-                  fontFamily: 'EBGaramond',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 25,
-                  color: Colors.grey[700],
-                  decoration: TextDecoration.none),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              clockData.priceClock,
+              clockData.price,
               textAlign: TextAlign.justify,
               style: TextStyle(
                   fontFamily: 'Birthstone',
                   fontWeight: FontWeight.w400,
                   fontSize: 45,
-                  color: Colors.grey[500],
+                  color: Colors.teal[900],
                   decoration: TextDecoration.none),
             ),
             SizedBox(
