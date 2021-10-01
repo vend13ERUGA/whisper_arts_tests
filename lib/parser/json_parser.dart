@@ -7,20 +7,29 @@ Future<String> _loadJSON() async {
   return await rootBundle.loadString('source/json/clock_json.json');
 }
 
-Future<Clock> loadJSON() async {
+Future<List<ClockData>> loadJSON([List<int>? listID]) async {
   String jsonString = await _loadJSON();
-  Clock clock = _parseJson(jsonString);
-  return clock;
-  //для проверки
-  // return Future.delayed(Duration(seconds: 20), () => clock);
-}
+  // print(jsonString);
+  List<dynamic> decoded = jsonDecode(jsonString);
+  List<ClockData> clock = [];
 
-Clock _parseJson(String jsonString) {
-  Map decoded = jsonDecode(jsonString);
-  List<Word> words = [];
-  for (var word in decoded['clock']) {
-    words.add(new Word(word['id'], word['name'], word['url'],
-        word['description'], word['price']));
+  if (listID == null) {
+    for (var key in decoded) {
+      clock.add(ClockData(key['id'], key['name'], key['url'],
+          key['description'], key['price']));
+    }
+  } else {
+    for (var id in listID) {
+      for (var key in decoded) {
+        if (key['id'] == id) {
+          clock.add(ClockData(key['id'], key['name'], key['url'],
+              key['description'], key['price']));
+        }
+      }
+    }
   }
-  return new Clock(words);
+
+  return clock;
+  // для проверки
+  // return Future.delayed(Duration(seconds: 20), () => clock);
 }
