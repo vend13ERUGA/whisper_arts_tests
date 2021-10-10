@@ -7,7 +7,7 @@ Future<String> _loadJSON() async {
   return await rootBundle.loadString('source/json/clock_json.json');
 }
 
-Future<List<ClockData>> loadJSON([List<int>? listID]) async {
+Future<List<ClockData>> loadJSON([Iterable<int>? listID]) async {
   String jsonString = await _loadJSON();
   // print(jsonString);
   List<dynamic> decoded = jsonDecode(jsonString);

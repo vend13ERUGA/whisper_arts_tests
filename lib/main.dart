@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:whisper_arts_tests/pages/home.dart';
+import 'package:whisper_arts_tests/pages/basket/basket.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -9,6 +10,7 @@ void main() {
     initialRoute: '/',
     routes: {
       '/': (context) => Home(),
+      '/basket': (context) => Basket(),
     },
   ));
 }

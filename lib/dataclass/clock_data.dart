@@ -6,3 +6,9 @@ class ClockData {
   final String price;
   ClockData(this.id, this.name, this.url, this.description, this.price);
 }
+
+// class Clock {
+//   final List<ClockData> clockData;
+//   final int quantity;
+//   Clock(this.clockData, this.quantity);
+// }

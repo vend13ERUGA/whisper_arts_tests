@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:whisper_arts_tests/dataclass/clock_data.dart';
-import 'package:whisper_arts_tests/pages/basket/basket.dart';
 import 'package:whisper_arts_tests/pages/basket/basket_singleton.dart';
 import 'package:whisper_arts_tests/pages/clock_details.dart';
 import 'package:whisper_arts_tests/parser/json_parser.dart';
@@ -13,42 +12,36 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  List<bool> addFavorite = [];
-
-  int indexCount = 0;
-  void changeValue(bool value) {
-    setState(() {
-      this.addFavorite[indexCount] = value;
-    });
-  }
-
-  void deleteValue() {
-    setState(() {
-      for (int i = 0; i <= addFavorite.length - 1; i++) {
-        this.addFavorite[i] = true;
-      }
-    });
-  }
-
-  void changeValue2(int indexCount2) {
-    setState(() {
-      int id = indexCount2;
-      bool i = false;
-      if (BasketSingleton().clockID.isEmpty) {
-        this.addFavorite[indexCount2 - 1] = true;
+  @override
+  String convertPrise() {
+    var price = BasketSingleton().getPrice();
+    if (price > 999 && price <= 999999) {
+      if (price % 1000 == 0) {
+        int div = price ~/ 1000;
+        return div.toString() + "K";
       } else {
-        for (var Id in BasketSingleton().clockID) {
-          if (id == Id) {
-            i = true;
-          }
-        }
-        if (i) {
-          this.addFavorite[indexCount2 - 1] = false;
-        } else {
-          this.addFavorite[indexCount2 - 1] = true;
-        }
+        double divmod = price / 1000;
+        return divmod.toString() + "K";
       }
-    });
+    } else if (price > 999999 && price < 999999999) {
+      if (price % 1000000 == 0) {
+        int div = price ~/ 1000000;
+        return div.toString() + "M";
+      } else {
+        double divmod = price / 1000000;
+        return divmod.toString() + "M";
+      }
+    } else if (price > 999999999) {
+      if (price % 1000000000 == 0) {
+        int div = price ~/ 1000000000;
+        return div.toString() + "MM";
+      } else {
+        double divmod = price / 1000000000;
+        return divmod.toString() + "MM";
+      }
+    } else {
+      return price.toString();
+    }
   }
 
   @override
@@ -113,30 +106,21 @@ class _HomeState extends State<Home> {
                                     padding:
                                         EdgeInsets.only(bottom: 35, right: 35),
                                     onPressed: () {
-                                      setState(() {
-                                        if (addFavorite.isEmpty) {
-                                          for (int i = 1;
-                                              i <= snapshot.data!.length;
-                                              i++) {
-                                            addFavorite.add(true);
-                                          }
-                                        }
-                                        addFavorite[index] =
-                                            !addFavorite[index];
-                                      });
-                                      addFavorite[index]
-                                          ? BasketSingleton().deleteID(
-                                              snapshot.data![index].id)
-                                          : BasketSingleton()
-                                              .addID(snapshot.data![index].id);
-                                      // changeBasketIcon();
+                                      if (BasketSingleton().findIDInBasket(
+                                          snapshot.data![index].id)) {
+                                        BasketSingleton()
+                                            .delete(snapshot.data![index].id);
+                                      } else {
+                                        BasketSingleton()
+                                            .add(snapshot.data![index]);
+                                      }
+                                      setState(() {});
                                     },
                                     icon: Icon(
-                                      addFavorite.isEmpty
-                                          ? Icons.add_box_outlined
-                                          : addFavorite[index]
-                                              ? Icons.add_box_outlined
-                                              : Icons.add_box_rounded,
+                                      BasketSingleton().findIDInBasket(
+                                              snapshot.data![index].id)
+                                          ? Icons.add_box_rounded
+                                          : Icons.add_box_outlined,
                                       color: Colors.white,
                                       size: 60.0,
                                     ),
@@ -149,23 +133,11 @@ class _HomeState extends State<Home> {
                             ],
                           )),
                       onTap: () {
-                        if (addFavorite.isEmpty) {
-                          for (int i = 1; i <= snapshot.data!.length; i++) {
-                            addFavorite.add(true);
-                          }
-                        }
-                        indexCount = index;
                         Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) {
-                            return Container(
-                                child: ClockDetails(changeValue,
-                                    snapshot.data![index], addFavorite[index]),
-                                width: 200,
-                                height: 200,
-                                color: Colors.red);
-                          }),
-                        );
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    ClockDetails(snapshot.data![index])));
                       },
                     ),
                   );
@@ -199,21 +171,15 @@ class _HomeState extends State<Home> {
                 style: TextStyle(color: Colors.white),
               ),
               actions: [
-                IconButton(
-                  padding: EdgeInsets.only(right: 30),
+                TextButton(
+                  child: Text(convertPrise()),
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            Basket(changeValue2, deleteValue)));
+                    setState(() {
+                      Navigator.pushNamed(context, '/basket').then((_) {
+                        setState(() {});
+                      });
+                    });
                   },
-                  icon: Container(
-                    child: Icon(
-                      BasketSingleton().clockID.isEmpty
-                          ? Icons.shopping_basket_outlined
-                          : Icons.shopping_basket_rounded,
-                      size: 40,
-                    ),
-                  ),
                 ),
               ],
             ),
