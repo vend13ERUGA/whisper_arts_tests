@@ -2,18 +2,18 @@ import 'package:whisper_arts_tests/dataclass/clock_data.dart';
 
 class BasketSingleton {
   static BasketSingleton? _basketSingleton;
-  final List<ClockData> _clockIDList = [];
+  final List<ClockQuantity> _clockList = [];
 
   Iterable<ClockData> getBasketList() sync* {
-    for (var item in _clockIDList) {
-      yield item;
+    for (var clock in _clockList) {
+      yield clock.clockData;
     }
   }
 
   bool findIDInBasket(int ID) {
     bool counter = false;
-    for (var item in _clockIDList) {
-      if (item.id == ID) {
+    for (var clock in _clockList) {
+      if (clock.clockData.id == ID) {
         counter = true;
         break;
       }
@@ -21,36 +21,104 @@ class BasketSingleton {
     return counter;
   }
 
+  String getQuantity(int ID) {
+    int quantity = 0;
+    for (var clock in _clockList) {
+      if (clock.clockData.id == ID) {
+        quantity = clock.quantity;
+        break;
+      }
+    }
+    return quantity.toString();
+  }
+
+  void incrementQuantity(int ID) {
+    int quantity = 0;
+    for (var clock in _clockList) {
+      if (clock.clockData.id == ID) {
+        clock.quantity++;
+        break;
+      }
+    }
+  }
+
+  void decrementQuantity(int ID) {
+    int quantity = 0;
+    for (var clock in _clockList) {
+      if (clock.clockData.id == ID) {
+        if (clock.quantity >= 2) {
+          clock.quantity--;
+          break;
+        } else {
+          break;
+        }
+      }
+    }
+  }
+
   void delete(int ID) {
-    for (int i = 0; i <= _clockIDList.length; i++) {
-      if (_clockIDList[i].id == ID) {
-        _clockIDList.remove(_clockIDList[i]);
+    for (int i = 0; i <= _clockList.length; i++) {
+      if (_clockList[i].clockData.id == ID) {
+        _clockList.remove(_clockList[i]);
         break;
       }
     }
   }
 
   bool checkingForEmptiness() {
-    if (_clockIDList.isEmpty)
+    if (_clockList.isEmpty)
       return false;
     else
       return true;
   }
 
   void add(ClockData clockData) {
-    _clockIDList.add(clockData);
+    ClockQuantity clockQuantity = ClockQuantity(clockData, 1);
+    _clockList.add(clockQuantity);
   }
 
   void deleteAll() {
-    _clockIDList.clear();
+    _clockList.clear();
   }
 
   int getPrice() {
     int price = 0;
-    for (var item in _clockIDList) {
-      price = price + int.parse(item.price);
+    for (var item in _clockList) {
+      var ttt = int.parse(item.clockData.price) * item.quantity;
+      price = price + ttt;
     }
     return price;
+  }
+
+  String convertPrise() {
+    var price = getPrice();
+    if (price > 999 && price <= 999999) {
+      if (price % 1000 == 0) {
+        int div = price ~/ 1000;
+        return div.toString() + "K";
+      } else {
+        double divmod = price / 1000;
+        return divmod.toString() + "K";
+      }
+    } else if (price > 999999 && price < 999999999) {
+      if (price % 1000000 == 0) {
+        int div = price ~/ 1000000;
+        return div.toString() + "M";
+      } else {
+        double divmod = price / 1000000;
+        return divmod.toString() + "M";
+      }
+    } else if (price > 999999999) {
+      if (price % 1000000000 == 0) {
+        int div = price ~/ 1000000000;
+        return div.toString() + "MM";
+      } else {
+        double divmod = price / 1000000000;
+        return divmod.toString() + "MM";
+      }
+    } else {
+      return price.toString();
+    }
   }
 
   factory BasketSingleton() {

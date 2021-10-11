@@ -13,37 +13,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   @override
-  String convertPrise() {
-    var price = BasketSingleton().getPrice();
-    if (price > 999 && price <= 999999) {
-      if (price % 1000 == 0) {
-        int div = price ~/ 1000;
-        return div.toString() + "K";
-      } else {
-        double divmod = price / 1000;
-        return divmod.toString() + "K";
-      }
-    } else if (price > 999999 && price < 999999999) {
-      if (price % 1000000 == 0) {
-        int div = price ~/ 1000000;
-        return div.toString() + "M";
-      } else {
-        double divmod = price / 1000000;
-        return divmod.toString() + "M";
-      }
-    } else if (price > 999999999) {
-      if (price % 1000000000 == 0) {
-        int div = price ~/ 1000000000;
-        return div.toString() + "MM";
-      } else {
-        double divmod = price / 1000000000;
-        return divmod.toString() + "MM";
-      }
-    } else {
-      return price.toString();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<ClockData>>(
@@ -133,11 +102,16 @@ class _HomeState extends State<Home> {
                             ],
                           )),
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    ClockDetails(snapshot.data![index])));
+                        setState(() {
+                          Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ClockDetails(snapshot.data![index])))
+                              .then((_) {
+                            setState(() {});
+                          });
+                        });
                       },
                     ),
                   );
@@ -172,7 +146,13 @@ class _HomeState extends State<Home> {
               ),
               actions: [
                 TextButton(
-                  child: Text(convertPrise()),
+                  child: Text(
+                    BasketSingleton().convertPrise(),
+                    style: TextStyle(
+                        color: Colors.yellowAccent,
+                        fontSize: 25,
+                        fontFamily: "BebasNeue"),
+                  ),
                   onPressed: () {
                     setState(() {
                       Navigator.pushNamed(context, '/basket').then((_) {
