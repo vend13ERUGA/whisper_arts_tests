@@ -4,21 +4,12 @@ class BasketSingleton {
   static BasketSingleton? _basketSingleton;
   final List<ClockQuantity> _clockList = [];
 
-  Iterable<ClockData> getBasketList() sync* {
-    for (var clock in _clockList) {
-      yield clock.clockData;
-    }
+  Iterable<ClockData> getBasketList() {
+    return _clockList.map((e) => e.clockData);
   }
 
   bool hasIDInBasket(int ID) {
-    bool hasIDInBasket = false;
-    for (var clock in _clockList) {
-      if (clock.clockData.id == ID) {
-        hasIDInBasket = true;
-        break;
-      }
-    }
-    return hasIDInBasket;
+    return _clockList.any((element) => element.clockData.id == ID);
   }
 
   String getQuantity(int ID) {

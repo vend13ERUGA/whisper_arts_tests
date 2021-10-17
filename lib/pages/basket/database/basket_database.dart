@@ -16,15 +16,9 @@ class BasketDatabase {
     return _database!;
   }
 
-  Future init() async {
-    _database = await _initDB('basket.db');
-  }
-
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    print(path);
-
     return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
@@ -69,14 +63,12 @@ CREATE TABLE $tableBasket (
 
   Future<BasketData> readBasket(int idClock) async {
     final db = await instance.database;
-
     final maps = await db.query(
       tableBasket,
       columns: BasketFields.values,
       where: '${BasketFields.idClock} = ?',
       whereArgs: [idClock],
     );
-
     if (maps.isNotEmpty) {
       return BasketData.fromJson(maps.first);
     } else {
@@ -92,7 +84,6 @@ CREATE TABLE $tableBasket (
 
   Future<int> update(BasketData basket) async {
     final db = await instance.database;
-
     return db.update(
       tableBasket,
       basket.toJson(),
@@ -103,7 +94,6 @@ CREATE TABLE $tableBasket (
 
   Future<int> delete(int idClock) async {
     final db = await instance.database;
-
     return await db.delete(
       tableBasket,
       where: '${BasketFields.idClock} = ?',
@@ -112,16 +102,14 @@ CREATE TABLE $tableBasket (
   }
 
   Future deleteAll() async {
-    print("object");
     var databasesPath = await getDatabasesPath();
     String path = join(databasesPath, 'basket.db');
-    print(path);
     await deleteDatabase(path);
+    _database = await _initDB('basket.db');
   }
 
   Future close() async {
     final db = await instance.database;
-
     db.close();
   }
 }

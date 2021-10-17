@@ -25,7 +25,6 @@ class _HomeState extends State<Home> {
         BasketSingleton().addAll(clockQuantity);
       }
     }
-
     setState(() {});
   }
 

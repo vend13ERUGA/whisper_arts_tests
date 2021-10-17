@@ -194,7 +194,6 @@ class _BasketState extends State<Basket> {
                                 TextButton(
                                   onPressed: () {
                                     Navigator.pop(context, 'OK');
-                                    BasketDatabase.instance.init();
                                   },
                                   child: const Text('OK'),
                                 ),
