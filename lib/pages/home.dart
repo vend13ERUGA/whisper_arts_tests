@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:whisper_arts_tests/dataclass/clock_data.dart';
+import 'package:whisper_arts_tests/dataclass/basket_database_data.dart';
 import 'package:whisper_arts_tests/pages/basket/basket_singleton.dart';
 import 'package:whisper_arts_tests/pages/clock_details.dart';
 import 'package:whisper_arts_tests/parser/json_parser.dart';
+import 'package:whisper_arts_tests/pages/basket/database/basket_database.dart';
 
 class Home extends StatefulWidget {
   Home({Key? key}) : super(key: key);
@@ -12,7 +14,31 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  @override
+  Future refreshBasket() async {
+    late final List<BasketData> basket;
+    basket = await BasketDatabase.instance.readAllBasket();
+    if (basket.isNotEmpty) {
+      for (var init in basket) {
+        ClockData clockData = ClockData(
+            init.idClock, init.name, init.url, init.description, init.price);
+        ClockQuantity clockQuantity = ClockQuantity(clockData, init.quantity);
+        BasketSingleton().addAll(clockQuantity);
+      }
+    }
+
+    setState(() {});
+  }
+
+  void initState() {
+    refreshBasket();
+    super.initState();
+  }
+
+  void dispose() {
+    BasketDatabase.instance.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<ClockData>>(
@@ -75,18 +101,36 @@ class _HomeState extends State<Home> {
                                     padding:
                                         EdgeInsets.only(bottom: 35, right: 35),
                                     onPressed: () {
-                                      if (BasketSingleton().findIDInBasket(
+                                      if (BasketSingleton().hasIDInBasket(
                                           snapshot.data![index].id)) {
+                                        //delete from BasketList
                                         BasketSingleton()
                                             .delete(snapshot.data![index].id);
+                                        //delete from Database
+                                        BasketDatabase.instance
+                                            .delete(snapshot.data![index].id);
                                       } else {
+                                        //add to BasketList
                                         BasketSingleton()
                                             .add(snapshot.data![index]);
+                                        //add to Database
+                                        BasketDatabase.instance.create(
+                                            BasketData(
+                                                idClock:
+                                                    snapshot.data![index].id,
+                                                quantity: 1,
+                                                name:
+                                                    snapshot.data![index].name,
+                                                url: snapshot.data![index].url,
+                                                description: snapshot
+                                                    .data![index].description,
+                                                price: snapshot
+                                                    .data![index].price));
                                       }
                                       setState(() {});
                                     },
                                     icon: Icon(
-                                      BasketSingleton().findIDInBasket(
+                                      BasketSingleton().hasIDInBasket(
                                               snapshot.data![index].id)
                                           ? Icons.add_box_rounded
                                           : Icons.add_box_outlined,

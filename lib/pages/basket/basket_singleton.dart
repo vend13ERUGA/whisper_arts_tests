@@ -10,15 +10,15 @@ class BasketSingleton {
     }
   }
 
-  bool findIDInBasket(int ID) {
-    bool counter = false;
+  bool hasIDInBasket(int ID) {
+    bool hasIDInBasket = false;
     for (var clock in _clockList) {
       if (clock.clockData.id == ID) {
-        counter = true;
+        hasIDInBasket = true;
         break;
       }
     }
-    return counter;
+    return hasIDInBasket;
   }
 
   String getQuantity(int ID) {
@@ -65,15 +65,12 @@ class BasketSingleton {
     }
   }
 
-  bool checkingForEmptiness() {
-    if (_clockList.isEmpty)
-      return false;
-    else
-      return true;
-  }
-
   void add(ClockData clockData) {
     ClockQuantity clockQuantity = ClockQuantity(clockData, 1);
+    _clockList.add(clockQuantity);
+  }
+
+  void addAll(ClockQuantity clockQuantity) {
     _clockList.add(clockQuantity);
   }
 
@@ -84,8 +81,7 @@ class BasketSingleton {
   int getPrice() {
     int price = 0;
     for (var item in _clockList) {
-      var ttt = int.parse(item.clockData.price) * item.quantity;
-      price = price + ttt;
+      price = price + int.parse(item.clockData.price) * item.quantity;
     }
     return price;
   }
@@ -123,7 +119,7 @@ class BasketSingleton {
 
   factory BasketSingleton() {
     _basketSingleton ??= BasketSingleton._internal();
-    return _basketSingleton as BasketSingleton;
+    return _basketSingleton!;
   }
 
   BasketSingleton._internal();

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:whisper_arts_tests/dataclass/clock_data.dart';
 import 'package:whisper_arts_tests/pages/basket/basket_singleton.dart';
+import 'package:whisper_arts_tests/pages/basket/database/basket_database.dart';
+import 'package:whisper_arts_tests/dataclass/basket_database_data.dart';
 
 class ClockDetails extends StatefulWidget {
   ClockData listClockData;
@@ -101,21 +103,29 @@ class _ClockDetailsState extends State<ClockDetails> {
             FloatingActionButton.extended(
                 backgroundColor: Colors.yellow,
                 label: Text(
-                  BasketSingleton().findIDInBasket(listClockData.id)
+                  BasketSingleton().hasIDInBasket(listClockData.id)
                       ? "В корзине"
                       : "Положить в корзину",
                   style: TextStyle(color: Colors.teal[900]),
                 ),
                 icon: Icon(
-                    BasketSingleton().findIDInBasket(listClockData.id)
+                    BasketSingleton().hasIDInBasket(listClockData.id)
                         ? Icons.check_rounded
                         : Icons.add_shopping_cart_outlined,
                     color: Colors.teal[900]),
                 onPressed: () {
-                  if (BasketSingleton().findIDInBasket(listClockData.id)) {
+                  if (BasketSingleton().hasIDInBasket(listClockData.id)) {
                     BasketSingleton().delete(listClockData.id);
+                    BasketDatabase.instance.delete(listClockData.id);
                   } else {
                     BasketSingleton().add(listClockData);
+                    BasketDatabase.instance.create(BasketData(
+                        idClock: listClockData.id,
+                        quantity: 1,
+                        name: listClockData.name,
+                        url: listClockData.url,
+                        description: listClockData.description,
+                        price: listClockData.price));
                   }
                   setState(() {});
                 }),

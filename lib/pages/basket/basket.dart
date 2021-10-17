@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whisper_arts_tests/pages/basket/basket_singleton.dart';
+import 'package:whisper_arts_tests/pages/basket/database/basket_database.dart';
+import 'package:whisper_arts_tests/dataclass/basket_database_data.dart';
 
 class Basket extends StatefulWidget {
   Basket();
@@ -21,6 +23,20 @@ class _BasketState extends State<Basket> {
   double getWidth(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     return width * 0.9;
+  }
+
+  Future incrementQuantity(int idClock) async {
+    late BasketData basket;
+    basket = await BasketDatabase.instance.readBasket(idClock);
+    BasketDatabase.instance.incrementQuantity(basket);
+    print(basket.quantity);
+  }
+
+  Future decrementQuantity(int idClock) async {
+    late BasketData basket;
+    basket = await BasketDatabase.instance.readBasket(idClock);
+    BasketDatabase.instance.decrementQuantity(basket);
+    print(basket.quantity);
   }
 
   @override
@@ -108,6 +124,7 @@ class _BasketState extends State<Basket> {
                                       setState(() {
                                         BasketSingleton().incrementQuantity(
                                             basketList[index].id);
+                                        incrementQuantity(basketList[index].id);
                                       });
                                     },
                                     child: Text("+",
@@ -121,6 +138,7 @@ class _BasketState extends State<Basket> {
                                       setState(() {
                                         BasketSingleton().decrementQuantity(
                                             basketList[index].id);
+                                        decrementQuantity(basketList[index].id);
                                       });
                                     },
                                     child: Text(
@@ -135,6 +153,8 @@ class _BasketState extends State<Basket> {
                                 onPressed: () {
                                   setState(() {
                                     BasketSingleton()
+                                        .delete(basketList[index].id);
+                                    BasketDatabase.instance
                                         .delete(basketList[index].id);
                                   });
                                 },
@@ -163,6 +183,7 @@ class _BasketState extends State<Basket> {
                   onPrimary: Colors.white, // foreground
                 ),
                 onPressed: () {
+                  BasketDatabase.instance.deleteAll();
                   setState(() {
                     BasketSingleton().deleteAll();
                     showDialog<String>(
@@ -171,7 +192,10 @@ class _BasketState extends State<Basket> {
                               content: Text('Покупка совершена'),
                               actions: <Widget>[
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context, 'OK'),
+                                  onPressed: () {
+                                    Navigator.pop(context, 'OK');
+                                    BasketDatabase.instance.init();
+                                  },
                                   child: const Text('OK'),
                                 ),
                               ],
