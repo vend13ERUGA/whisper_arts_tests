@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whisper_arts_tests/pages/basket/basket_singleton.dart';
-import 'package:whisper_arts_tests/pages/basket/database/basket_database.dart';
-import 'package:whisper_arts_tests/dataclass/basket_database_data.dart';
+import 'package:whisper_arts_tests/database/database.dart';
+import 'package:whisper_arts_tests/dataclass/database_data.dart';
 
 class Basket extends StatefulWidget {
   Basket();
@@ -26,17 +26,15 @@ class _BasketState extends State<Basket> {
   }
 
   Future incrementQuantity(int idClock) async {
-    late BasketData basket;
-    basket = await BasketDatabase.instance.readBasket(idClock);
-    BasketDatabase.instance.incrementQuantity(basket);
-    print(basket.quantity);
+    late DatabaseData? basket;
+    basket = await BasketFavourutesDatabase.instance.readBasket(idClock);
+    BasketFavourutesDatabase.instance.incrementQuantity(basket);
   }
 
   Future decrementQuantity(int idClock) async {
-    late BasketData basket;
-    basket = await BasketDatabase.instance.readBasket(idClock);
-    BasketDatabase.instance.decrementQuantity(basket);
-    print(basket.quantity);
+    late DatabaseData? basket;
+    basket = await BasketFavourutesDatabase.instance.readBasket(idClock);
+    BasketFavourutesDatabase.instance.decrementQuantity(basket);
   }
 
   @override
@@ -154,8 +152,8 @@ class _BasketState extends State<Basket> {
                                   setState(() {
                                     BasketSingleton()
                                         .delete(basketList[index].id);
-                                    BasketDatabase.instance
-                                        .delete(basketList[index].id);
+                                    BasketFavourutesDatabase.instance.delete(
+                                        basketList[index].id, tableBasket);
                                   });
                                 },
                                 icon: Container(
@@ -183,7 +181,7 @@ class _BasketState extends State<Basket> {
                   onPrimary: Colors.white, // foreground
                 ),
                 onPressed: () {
-                  BasketDatabase.instance.deleteAll();
+                  BasketFavourutesDatabase.instance.deleteAll();
                   setState(() {
                     BasketSingleton().deleteAll();
                     showDialog<String>(

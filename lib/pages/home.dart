@@ -1,23 +1,40 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:whisper_arts_tests/pages/favourites/favourites.dart';
+import 'package:whisper_arts_tests/pages/list_of_product.dart';
+import 'package:whisper_arts_tests/database/database.dart';
+import 'package:whisper_arts_tests/pages/favourites/favourites_singleton.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:whisper_arts_tests/dataclass/clock_data.dart';
-import 'package:whisper_arts_tests/dataclass/basket_database_data.dart';
+import 'package:whisper_arts_tests/dataclass/database_data.dart';
 import 'package:whisper_arts_tests/pages/basket/basket_singleton.dart';
-import 'package:whisper_arts_tests/pages/clock_details.dart';
-import 'package:whisper_arts_tests/parser/json_parser.dart';
-import 'package:whisper_arts_tests/pages/basket/database/basket_database.dart';
 
 class Home extends StatefulWidget {
   Home({Key? key}) : super(key: key);
+
   @override
-  _HomeState createState() => _HomeState();
+  State<StatefulWidget> createState() {
+    return HomeState();
+  }
 }
 
-class _HomeState extends State<Home> {
-  Future refreshBasket() async {
-    late final List<BasketData> basket;
-    basket = await BasketDatabase.instance.readAllBasket();
-    if (basket.isNotEmpty) {
+class HomeState extends State<Home> {
+  Widget _ListOfProduct = SizedBox(
+    child: Center(
+      child: CircularProgressIndicator(
+        color: Colors.teal[900],
+      ),
+    ),
+  );
+  Widget _ListFavourites = SizedBox(
+    child: Center(
+      child: CircularProgressIndicator(
+        color: Colors.teal[900],
+      ),
+    ),
+  );
+  Future loadInDatabase() async {
+    final basket = await BasketFavourutesDatabase.instance.readAll(tableBasket);
+    if (BasketSingleton().isEmpty()) {
       for (var init in basket) {
         ClockData clockData = ClockData(
             init.idClock, init.name, init.url, init.description, init.price);
@@ -25,193 +42,76 @@ class _HomeState extends State<Home> {
         BasketSingleton().addAll(clockQuantity);
       }
     }
+    final favourites =
+        await BasketFavourutesDatabase.instance.readAll(tableFavourites);
+    if (FavouritesSingleton().isEmpty()) {
+      for (var init in favourites) {
+        ClockData clockData = ClockData(
+            init.idClock, init.name, init.url, init.description, init.price);
+        ClockQuantity clockQuantity = ClockQuantity(clockData, init.quantity);
+        FavouritesSingleton().addAll(clockQuantity);
+      }
+    }
+    _ListOfProduct = ListOfProduct();
+    _ListFavourites = Favourites();
     setState(() {});
   }
 
+  Future initDB() async {
+    await BasketFavourutesDatabase.instance.initDB('basket.db');
+    loadInDatabase();
+  }
+
   void initState() {
-    refreshBasket();
+    initDB();
     super.initState();
   }
 
   void dispose() {
-    BasketDatabase.instance.close();
+    BasketFavourutesDatabase.instance.close();
     super.dispose();
   }
 
+  int selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ClockData>>(
-        future: loadJSON(),
-        builder:
-            (BuildContext context, AsyncSnapshot<List<ClockData>> snapshot) {
-          Widget children;
-          if (snapshot.hasData) {
-            children = GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  childAspectRatio: (0.7),
-                  crossAxisCount: 2,
-                ),
-                itemCount: snapshot.data!.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.teal.shade900,
-                        width: 4,
-                      ),
-                      image: DecorationImage(
-                          image: NetworkImage(snapshot.data![index].url),
-                          fit: BoxFit.cover),
-                    ),
-                    child: GestureDetector(
-                      child: Card(
-                          borderOnForeground: false,
-                          color: Colors.transparent,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ListTile(
-                                title: Text(
-                                  snapshot.data![index].name,
-                                  style: TextStyle(
-                                    fontFamily: 'BebasNeue',
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold,
-                                    backgroundColor: Colors.transparent,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    snapshot.data![index].price,
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                      fontFamily: 'Birthstone',
-                                      fontSize: 35,
-                                      fontWeight: FontWeight.bold,
-                                      backgroundColor: Colors.transparent,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    padding:
-                                        EdgeInsets.only(bottom: 35, right: 35),
-                                    onPressed: () {
-                                      if (BasketSingleton().hasIDInBasket(
-                                          snapshot.data![index].id)) {
-                                        //delete from BasketList
-                                        BasketSingleton()
-                                            .delete(snapshot.data![index].id);
-                                        //delete from Database
-                                        BasketDatabase.instance
-                                            .delete(snapshot.data![index].id);
-                                      } else {
-                                        //add to BasketList
-                                        BasketSingleton()
-                                            .add(snapshot.data![index]);
-                                        //add to Database
-                                        BasketDatabase.instance.create(
-                                            BasketData(
-                                                idClock:
-                                                    snapshot.data![index].id,
-                                                quantity: 1,
-                                                name:
-                                                    snapshot.data![index].name,
-                                                url: snapshot.data![index].url,
-                                                description: snapshot
-                                                    .data![index].description,
-                                                price: snapshot
-                                                    .data![index].price));
-                                      }
-                                      setState(() {});
-                                    },
-                                    icon: Icon(
-                                      BasketSingleton().hasIDInBasket(
-                                              snapshot.data![index].id)
-                                          ? Icons.add_box_rounded
-                                          : Icons.add_box_outlined,
-                                      color: Colors.white,
-                                      size: 60.0,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 0,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          )),
-                      onTap: () {
-                        setState(() {
-                          Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          ClockDetails(snapshot.data![index])))
-                              .then((_) {
-                            setState(() {});
-                          });
-                        });
-                      },
-                    ),
-                  );
-                });
-          } else if (snapshot.hasError) {
-            children = SizedBox(
-              child: Center(
-                  child: Text(
-                "ERROR",
-                style: TextStyle(
-                    color: Colors.teal[900],
-                    fontFamily: 'BebasNeue',
-                    fontSize: 26),
-              )),
-            );
-          } else {
-            children = SizedBox(
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: Colors.teal[900],
-                ),
-              ),
-            );
-          }
-          return Scaffold(
-            appBar: AppBar(
-              centerTitle: true,
-              backgroundColor: Colors.teal[900],
-              title: Text(
-                'ROLEX',
-                style: TextStyle(color: Colors.white),
-              ),
-              actions: [
-                TextButton(
-                  child: Text(
-                    BasketSingleton().convertPrise(),
-                    style: TextStyle(
-                        color: Colors.yellowAccent,
-                        fontSize: 25,
-                        fontFamily: "BebasNeue"),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      Navigator.pushNamed(context, '/basket').then((_) {
-                        setState(() {});
-                      });
-                    });
-                  },
-                ),
-              ],
-            ),
-            body: MediaQuery.removePadding(
-              context: context,
-              removeTop: true,
-              child: children,
-            ),
-          );
-        });
+    return Scaffold(
+      body: this.getBody(),
+      bottomNavigationBar: BottomNavigationBar(
+        fixedColor: Colors.amber,
+        unselectedItemColor: Colors.white,
+        backgroundColor: Colors.teal[900],
+        type: BottomNavigationBarType.fixed,
+        currentIndex: this.selectedIndex,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            title: Text("Все товары"),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            title: Text("Избранное"),
+          ),
+        ],
+        onTap: (int index) {
+          this.onTapHandler(index);
+        },
+      ),
+    );
+  }
+
+  Widget getBody() {
+    if (this.selectedIndex == 0) {
+      return this._ListOfProduct;
+    } else {
+      return this._ListFavourites;
+    }
+  }
+
+  void onTapHandler(int index) {
+    this.setState(() {
+      this.selectedIndex = index;
+    });
   }
 }

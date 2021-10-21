@@ -2,19 +2,19 @@ import 'package:whisper_arts_tests/dataclass/clock_data.dart';
 
 class BasketSingleton {
   static BasketSingleton? _basketSingleton;
-  final List<ClockQuantity> _clockList = [];
+  final List<ClockQuantity> _basketList = [];
 
   Iterable<ClockData> getBasketList() {
-    return _clockList.map((e) => e.clockData);
+    return _basketList.map((e) => e.clockData);
   }
 
   bool hasIDInBasket(int ID) {
-    return _clockList.any((element) => element.clockData.id == ID);
+    return _basketList.any((element) => element.clockData.id == ID);
   }
 
   String getQuantity(int ID) {
     int quantity = 0;
-    for (var clock in _clockList) {
+    for (var clock in _basketList) {
       if (clock.clockData.id == ID) {
         quantity = clock.quantity;
         break;
@@ -25,7 +25,7 @@ class BasketSingleton {
 
   void incrementQuantity(int ID) {
     int quantity = 0;
-    for (var clock in _clockList) {
+    for (var clock in _basketList) {
       if (clock.clockData.id == ID) {
         clock.quantity++;
         break;
@@ -35,7 +35,7 @@ class BasketSingleton {
 
   void decrementQuantity(int ID) {
     int quantity = 0;
-    for (var clock in _clockList) {
+    for (var clock in _basketList) {
       if (clock.clockData.id == ID) {
         if (clock.quantity >= 2) {
           clock.quantity--;
@@ -48,9 +48,9 @@ class BasketSingleton {
   }
 
   void delete(int ID) {
-    for (int i = 0; i <= _clockList.length; i++) {
-      if (_clockList[i].clockData.id == ID) {
-        _clockList.remove(_clockList[i]);
+    for (int i = 0; i <= _basketList.length; i++) {
+      if (_basketList[i].clockData.id == ID) {
+        _basketList.remove(_basketList[i]);
         break;
       }
     }
@@ -58,20 +58,21 @@ class BasketSingleton {
 
   void add(ClockData clockData) {
     ClockQuantity clockQuantity = ClockQuantity(clockData, 1);
-    _clockList.add(clockQuantity);
+    _basketList.add(clockQuantity);
   }
 
   void addAll(ClockQuantity clockQuantity) {
-    _clockList.add(clockQuantity);
+    _basketList.add(clockQuantity);
   }
 
   void deleteAll() {
-    _clockList.clear();
+    _basketList.clear();
   }
 
+  bool isEmpty() => _basketList.isEmpty;
   int getPrice() {
     int price = 0;
-    for (var item in _clockList) {
+    for (var item in _basketList) {
       price = price + int.parse(item.clockData.price) * item.quantity;
     }
     return price;

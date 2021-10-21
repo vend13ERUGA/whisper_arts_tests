@@ -1,6 +1,7 @@
 final String tableBasket = 'basket';
+final String tableFavourites = 'favourites';
 
-class BasketFields {
+class databaseFields {
   static final List<String> values = [
     id,
     idClock,
@@ -20,7 +21,7 @@ class BasketFields {
   static final String price = 'price';
 }
 
-class BasketData {
+class DatabaseData {
   final int? id;
   final int idClock;
   int quantity;
@@ -29,7 +30,7 @@ class BasketData {
   final String description;
   final String price;
 
-  BasketData(
+  DatabaseData(
       {this.id,
       required this.idClock,
       required this.quantity,
@@ -38,7 +39,7 @@ class BasketData {
       required this.description,
       required this.price});
 
-  BasketData copy(
+  DatabaseData copy(
           {int? id,
           int? idClock,
           int? quantity,
@@ -46,7 +47,7 @@ class BasketData {
           String? url,
           String? description,
           String? price}) =>
-      BasketData(
+      DatabaseData(
           id: id ?? this.id,
           idClock: idClock ?? this.idClock,
           quantity: quantity ?? this.quantity,
@@ -55,22 +56,22 @@ class BasketData {
           description: description ?? this.description,
           price: price ?? this.price);
 
-  static BasketData fromJson(Map<String, Object?> json) => BasketData(
-      id: json[BasketFields.id] as int?,
-      idClock: json[BasketFields.idClock] as int,
-      quantity: json[BasketFields.quantity] as int,
-      name: json[BasketFields.name] as String,
-      url: json[BasketFields.url] as String,
-      description: json[BasketFields.description] as String,
-      price: json[BasketFields.price] as String);
+  static DatabaseData fromJson(Map<String, Object?> json) => DatabaseData(
+      id: json[databaseFields.id] as int?,
+      idClock: json[databaseFields.idClock] as int,
+      quantity: json[databaseFields.quantity] as int,
+      name: json[databaseFields.name] as String,
+      url: json[databaseFields.url] as String,
+      description: json[databaseFields.description] as String,
+      price: json[databaseFields.price] as String);
 
   Map<String, Object?> toJson() => {
-        BasketFields.id: id,
-        BasketFields.idClock: idClock,
-        BasketFields.quantity: quantity,
-        BasketFields.name: name,
-        BasketFields.url: url,
-        BasketFields.description: description,
-        BasketFields.price: price
+        databaseFields.id: id,
+        databaseFields.idClock: idClock,
+        databaseFields.quantity: quantity,
+        databaseFields.name: name,
+        databaseFields.url: url,
+        databaseFields.description: description,
+        databaseFields.price: price
       };
 }

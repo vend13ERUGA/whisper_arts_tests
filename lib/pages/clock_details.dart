@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:whisper_arts_tests/dataclass/clock_data.dart';
 import 'package:whisper_arts_tests/pages/basket/basket_singleton.dart';
-import 'package:whisper_arts_tests/pages/basket/database/basket_database.dart';
-import 'package:whisper_arts_tests/dataclass/basket_database_data.dart';
+import 'package:whisper_arts_tests/database/database.dart';
+import 'package:whisper_arts_tests/dataclass/database_data.dart';
+import 'package:whisper_arts_tests/pages/favourites/favourites_singleton.dart';
+import 'package:lottie/lottie.dart';
 
 class ClockDetails extends StatefulWidget {
   ClockData listClockData;
@@ -13,11 +15,30 @@ class ClockDetails extends StatefulWidget {
   _ClockDetailsState createState() => _ClockDetailsState(listClockData);
 }
 
-class _ClockDetailsState extends State<ClockDetails> {
+class _ClockDetailsState extends State<ClockDetails>
+    with TickerProviderStateMixin {
   @override
   ClockData listClockData;
 
   _ClockDetailsState(this.listClockData);
+  late final AnimationController _controller;
+  @override
+  void initState() {
+    // _controller = AnimationController(vsync: this);
+    if (FavouritesSingleton().hasIDInFavourites(listClockData.id)) {
+      _controller = AnimationController(vsync: this)..value = 1;
+    } else {
+      _controller = AnimationController(vsync: this);
+    }
+
+    setState(() {});
+    super.initState();
+  }
+
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +84,40 @@ class _ClockDetailsState extends State<ClockDetails> {
                   fontSize: 50,
                   color: Colors.grey[700],
                   decoration: TextDecoration.none),
+            ),
+            TextButton(
+              onPressed: () {
+                if (FavouritesSingleton().hasIDInFavourites(listClockData.id)) {
+                  _controller.reverse();
+                  FavouritesSingleton().delete(listClockData.id);
+                  BasketFavourutesDatabase.instance
+                      .delete(listClockData.id, tableFavourites);
+                } else {
+                  _controller.forward();
+                  FavouritesSingleton().add(listClockData);
+                  BasketFavourutesDatabase.instance.create(
+                      DatabaseData(
+                          idClock: listClockData.id,
+                          quantity: 1,
+                          name: listClockData.name,
+                          url: listClockData.url,
+                          description: listClockData.description,
+                          price: listClockData.price),
+                      tableFavourites);
+                }
+                setState(() {});
+              },
+              child: Lottie.asset(
+                'source/json/favourite.json',
+                width: 100,
+                height: 100,
+                controller: _controller,
+                onLoaded: (composition) {
+                  setState(() {
+                    _controller.duration = composition.duration;
+                  });
+                },
+              ),
             ),
             SizedBox(
               height: 20,
@@ -116,16 +171,19 @@ class _ClockDetailsState extends State<ClockDetails> {
                 onPressed: () {
                   if (BasketSingleton().hasIDInBasket(listClockData.id)) {
                     BasketSingleton().delete(listClockData.id);
-                    BasketDatabase.instance.delete(listClockData.id);
+                    BasketFavourutesDatabase.instance
+                        .delete(listClockData.id, tableBasket);
                   } else {
                     BasketSingleton().add(listClockData);
-                    BasketDatabase.instance.create(BasketData(
-                        idClock: listClockData.id,
-                        quantity: 1,
-                        name: listClockData.name,
-                        url: listClockData.url,
-                        description: listClockData.description,
-                        price: listClockData.price));
+                    BasketFavourutesDatabase.instance.create(
+                        DatabaseData(
+                            idClock: listClockData.id,
+                            quantity: 1,
+                            name: listClockData.name,
+                            url: listClockData.url,
+                            description: listClockData.description,
+                            price: listClockData.price),
+                        tableBasket);
                   }
                   setState(() {});
                 }),
