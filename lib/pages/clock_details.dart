@@ -52,6 +52,7 @@ class _ClockDetailsState extends State<ClockDetails>
         ),
         actions: [
           TextButton(
+            key: Key('basket'),
             child: Text(
               BasketSingleton().convertPrise(),
               style: TextStyle(
