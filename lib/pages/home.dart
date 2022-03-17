@@ -14,6 +14,7 @@ class Home extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return HomeState();
+    //новое в мастере
   }
 }
 
@@ -21,7 +22,7 @@ class HomeState extends State<Home> {
   Widget _ListOfProduct = SizedBox(
     child: Center(
       child: CircularProgressIndicator(
-        color: Colors.blue,
+        color: Colors.green,
       ),
     ),
   );
