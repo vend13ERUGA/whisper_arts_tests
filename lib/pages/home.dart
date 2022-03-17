@@ -28,7 +28,7 @@ class HomeState extends State<Home> {
   Widget _ListFavourites = SizedBox(
     child: Center(
       child: CircularProgressIndicator(
-        color: Colors.teal[900],
+        color: Colors.yellow,
       ),
     ),
   );
